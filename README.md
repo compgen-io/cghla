@@ -15,7 +15,7 @@ These tools implement a particular workflow that assumes you have the following:
 Additionally, the tools are built to work with data from the IPD-IMGT/HLA database
 which is available from: https://hla.alleles.org
 
-Finally, final analysis can use MHC peptide binding affinities from mhcFurry which
+Finally, final prediction can use MHC peptide binding affinities from mhcFlurry which
 are available here: https://openvax.github.io/mhcflurry-motifs/mhcflurry.allele_sequences.csv
 
 The basic workflow can be described as:
