@@ -20,21 +20,21 @@ are available here: https://openvax.github.io/mhcflurry-motifs/mhcflurry.allele_
 
 The basic workflow can be described as:
 
-* WGS
-    1) Find the location of HLA alleles in the reference genome.
-    2) Extract flanking sequence from the reference genome, and adding this sequence
-       to the allele sequences
-    3) Extraction of mapped reads to the HLA locus in an already aligned BAM file
-    4) Re-alignment of these reads (optionally with unmapped reads as well) to the 
-       now extended flanking HLA allele sequences
-    5) Score HLA allele pairs (maternal/paternal) to find the most likely genotypes
-       for the individual.
-    6) Predict the most likely genotypes
+## WGS
+1) Find the location of HLA alleles in the reference genome.
+2) Extract flanking sequence from the reference genome, and adding this sequence
+   to the allele sequences
+3) Extraction of mapped reads to the HLA locus in an already aligned BAM file
+4) Re-alignment of these reads (optionally with unmapped reads as well) to the 
+   now extended flanking HLA allele sequences
+5) Score HLA allele pairs (maternal/paternal) to find the most likely genotypes
+   for the individual.
+6) Predict the most likely genotypes
 
-* RNAseq
-    The RNAseq/WES workflow is similar, but instead of using the `*_gen.fasta` versions
-    of the IPD-IMGTR/HLA sequences you can use the `*_nuc.fasta` versions. When using these
-    coding mRNA sequence, you can skip stpes 1 and 2. And instead of extracting a sub-set
-    of reads, you can align the raw FASTQ sequence. The scoring and prediction steps remain
-    the same.
+## RNAseq
+The RNAseq/WES workflow is similar, but instead of using the `*_gen.fasta` versions
+of the IPD-IMGTR/HLA sequences you can use the `*_nuc.fasta` versions. When using these
+coding mRNA sequence, you can skip steps 1 and 2. And instead of extracting a sub-set
+of reads, you can align the raw FASTQ sequence. The scoring and prediction steps remain
+the same.
 
