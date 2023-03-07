@@ -11,6 +11,7 @@ import cgmhc.flanking
 import cgmhc.extract
 import cgmhc.score
 import cgmhc.samfile
+import cgmhc.motif_similarity
 
 
 @contextlib.contextmanager
@@ -367,3 +368,27 @@ Arguments:
     proc.stdout.close()
     proc.wait()
 
+
+def similarity(argv, motifs, length=9, cutoff_fraction=0.01):
+    '''
+similarity - Calulate the cosine similarity between MHC alleles' peptide binding motifs
+
+If two allele are given, the cosine similarity between these two are calulated. Otherwise, all
+comparisons are made between all pairs of alleles present in the motifs file.
+
+Arguments:
+--motifs file.csv    MHCFlurry frequency matrix file (mhcflurry.ba.frequency_matrices.csv.gz)
+
+Optional arguments:
+
+allele1 allele2 (as unnamed arguments, note: you might need to use single quotes)
+
+--length             Length of peptides to use (default: 9)
+--cutoff_fraction    Cut-off fraction to use (default 0.01)
+
+'''
+
+    if argv:
+        cgmhc.motif_similarity.main(motifs, length, cutoff_fraction, argv[0], argv[1])
+    else:
+        cgmhc.motif_similarity.main(motifs, length, cutoff_fraction)

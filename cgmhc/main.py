@@ -1,5 +1,7 @@
+#!/usr/bin/env python3 
 import cgmhc
 import sys
+
 
 def usage():
     sys.stderr.write("""Usage: cgmhc cmd {args}
@@ -13,17 +15,23 @@ Valid commands (in order):
     align_to_hla          Align extracted reads to HLA (flanking) FASTA file
     score_pairs           Generate scores for HLA allele pairs
     predict               Find the most likely allele pairs
+    similarity            Calculate the cosine similarity between motifs
 
 """)
 
-def help(func):
+
+def help(func, arg_kv=None):
     sys.stderr.write('Usage: cgmhc %s {args}\n' % func.__name__) 
     sys.stderr.write('%s\n' % func.__doc__)
+    if arg_kv:
+        sys.stderr.write('\n%s\n' % arg_kv)
     sys.exit(1)
+
 
 def main(argv):
     cmd = None
     arg_kv = {}
+    argv2 = []
 
     last = None
     for arg in argv:
@@ -50,6 +58,8 @@ def main(argv):
                 arg_kv[last] = True
 
             last = arg[2:]
+        else:
+            argv2.append(arg)
 
     if last:
         arg_kv[last] = True
@@ -94,5 +104,15 @@ def main(argv):
             help(cgmhc.predict)
         cgmhc.predict(**arg_kv)
 
+    elif cmd == 'similarity':
+        if 'motifs' not in arg_kv:
+            help(cgmhc.similarity, arg_kv)
+        cgmhc.similarity(argv2, **arg_kv)
+
     else:
+        sys.stderr.write("Unknown command: %s\n" % (argv))
         usage()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
