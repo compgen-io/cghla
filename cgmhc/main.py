@@ -107,7 +107,11 @@ def main(argv):
     elif cmd == 'similarity':
         if 'motifs' not in arg_kv:
             help(cgmhc.similarity, arg_kv)
-        cgmhc.similarity(argv2, **arg_kv)
+
+        if 'allele' in arg_kv and type(arg_kv) != 'list':
+            help(cgmhc.similarity, arg_kv)
+
+        cgmhc.similarity(**arg_kv)
 
     else:
         sys.stderr.write("Unknown command: %s\n" % (argv))

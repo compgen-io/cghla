@@ -369,7 +369,7 @@ Arguments:
     proc.wait()
 
 
-def similarity(argv, motifs, length=9, cutoff_fraction=0.01):
+def similarity(motifs, alleles=None, f=None, length=9, cutoff_fraction=0.01, org=None):
     '''
 similarity - Calulate the cosine similarity between MHC alleles' peptide binding motifs
 
@@ -381,14 +381,27 @@ Arguments:
 
 Optional arguments:
 
-allele1 allele2 (as unnamed arguments, note: you might need to use single quotes)
+--alleles a1,a2,...   Comma separated list of alleles to compare
+--f file.txt          File with one allele to compare per line
 
---length             Length of peptides to use (default: 9)
---cutoff_fraction    Cut-off fraction to use (default 0.01)
+--org org             Add this org to allele names from --f (ex: --org HLA)
+
+--length              Length of peptides to use (default: 9)
+--cutoff_fraction     Cut-off fraction to use (default 0.01)
 
 '''
+    valid = None
+    if alleles:
+        valid = alleles.split(',')
 
-    if argv:
-        cgmhc.motif_similarity.main(motifs, length, cutoff_fraction, argv[0], argv[1])
+    if f:
+        valid = []
+        with open(f, 'rt') as f:
+            for line in f:
+                if org:
+                    valid.append('%s-%s' % (org, line.strip()))
     else:
-        cgmhc.motif_similarity.main(motifs, length, cutoff_fraction)
+                    valid.append(line.strip())
+                
+
+    cgmhc.motif_similarity.main(motifs, length, cutoff_fraction, valid)

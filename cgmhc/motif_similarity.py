@@ -52,22 +52,16 @@ def read_matrix(fname, length=9, cutoff_fraction=0.01, org=None, valid=None):
     return counts
 
 
-def main(freq_fname, length=9, cutoff_fraction=0.01, allele1=None, allele2=None):
-    if allele1 and allele2:
-        counts = read_matrix(freq_fname, length, cutoff_fraction, valid=[allele1, allele2])
-    else:
-        counts = read_matrix(freq_fname, length, cutoff_fraction)
-
-    calc_similarity(counts, allele1, allele2)
+def main(freq_fname, length=9, cutoff_fraction=0.01, valid=None):
+    counts = read_matrix(freq_fname, length, cutoff_fraction, valid=valid)
+    calc_similarity(counts)
 
 
-
-def calc_similarity(counts, allele1=None, allele2=None):
+def calc_similarity(counts):
     alleles = []
     for k in counts:
         gene = k.split('*')[0]
-        if (not allele1 and not allele2) or (k == allele1 or k == allele2):
-            alleles.append(k)
+        alleles.append(k)
 
     sys.stdout.write('gene1\tgene2\tallele1\tallele2\tsimilarity\n')
 
