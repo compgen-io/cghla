@@ -1,4 +1,4 @@
-# cgmhc
+# cghla
 
 A set of tools that are useful for finding the MHC/HLA alleles for a given
 sample using WGS, WES, or RNAseq data. In particular, these tools are designed for

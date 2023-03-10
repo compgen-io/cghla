@@ -1,6 +1,6 @@
 import sys
-import cgmhc
-import cgmhc.samfile
+import cghla
+import cghla.samfile
 
 def hla_flanking_fasta(hla, sam, ref, flanking=1000):
     '''
@@ -20,7 +20,7 @@ Arguments:
 --flanking (default: 1000)
 '''
 
-    alleles = cgmhc.HLAalleles(hla)
+    alleles = cghla.HLAalleles(hla)
 
     gene_windows = find_allele_gene_window(hla, sam)
 
@@ -29,7 +29,7 @@ Arguments:
         gene_chrom[(gene, gene_windows[gene][0])] = (gene_windows[gene][1], gene_windows[gene][2])
 
 
-    with cgmhc.open_file(sam, 'rt') as f:
+    with cghla.open_file(sam, 'rt') as f:
         for line in f:
             if not line.strip() or line[0] == '@':
                 continue
@@ -37,7 +37,7 @@ Arguments:
             cols = line.strip('\n').split('\t')
 
             qname = cols[0]
-            flags = cgmhc.samfile.parse_flags(int(cols[1]))
+            flags = cghla.samfile.parse_flags(int(cols[1]))
             chrom = cols[2]
             pos = int(cols[3])
             cigar = cols[5]
@@ -46,30 +46,30 @@ Arguments:
             if flags.unmapped:
                 continue
 
-            refend = pos + cgmhc.samfile.cigar_to_reflen(cigar)
+            refend = pos + cghla.samfile.cigar_to_reflen(cigar)
 
             gene = alleles.allele_gene[qname]
 
             gene_flank_start = gene_chrom[(gene, chrom)][0] - flanking - 1
             gene_flank_end = gene_chrom[(gene, chrom)][1] + flanking
 
-            left = cgmhc.get_faidx_subseq(ref, chrom, gene_flank_start, pos-1)
-            right = cgmhc.get_faidx_subseq(ref, chrom, refend-1, gene_flank_end)
+            left = cghla.get_faidx_subseq(ref, chrom, gene_flank_start, pos-1)
+            right = cghla.get_faidx_subseq(ref, chrom, refend-1, gene_flank_end)
             
             # we are using this seq, so we don't need to worry about +/- strandedness
             # seq in SAM is always +, left/right from FASTA is also +
             flanking_seq = '%s%s%s' % (left, seq, right)
 
-            cgmhc.write_fasta('%s %s %s:%s-%s' % (qname, alleles.allele_accn[qname], chrom, pos, refend), '%s%s%s' % (left, seq, right), 60)
+            cghla.write_fasta('%s %s %s:%s-%s' % (qname, alleles.allele_accn[qname], chrom, pos, refend), '%s%s%s' % (left, seq, right), 60)
 
 
 def find_allele_gene_window(hla, sam):
-    allele_genes = cgmhc.HLAalleles(hla)
+    allele_genes = cghla.HLAalleles(hla)
 
     starts = {}
     ends = {}
 
-    with cgmhc.open_file(sam, 'rt') as f:
+    with cghla.open_file(sam, 'rt') as f:
         for line in f:
             if not line.strip() or line[0] == '@':
                 continue
@@ -77,7 +77,7 @@ def find_allele_gene_window(hla, sam):
             cols = line.strip('\n').split('\t')
 
             qname = cols[0]
-            flags = cgmhc.samfile.parse_flags(int(cols[1]))
+            flags = cghla.samfile.parse_flags(int(cols[1]))
             chrom = cols[2]
             pos = int(cols[3])
             cigar = cols[5]
@@ -85,7 +85,7 @@ def find_allele_gene_window(hla, sam):
             if flags.unmapped:
                 continue
 
-            refend = pos + cgmhc.samfile.cigar_to_reflen(cigar)
+            refend = pos + cghla.samfile.cigar_to_reflen(cigar)
             gene = allele_genes.allele_gene[qname]
 
             if not (gene, chrom) in starts:

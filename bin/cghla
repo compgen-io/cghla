@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import cgmhc.main
+import cghla.main
 import sys
 
 if __name__ == '__main__':
-    cgmhc.main.main(sys.argv[1:])
+    cghla.main.main(sys.argv[1:])

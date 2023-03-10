@@ -1,13 +1,13 @@
 import sys
-import cgmhc
-import cgmhc.samfile
+import cghla
+import cghla.samfile
 
 
 def score_sam(sam, hla, min_as = 0):
-    alleles = cgmhc.HLAalleles(hla)
+    alleles = cghla.HLAalleles(hla)
 
     read_scores = {}
-    logger = cgmhc.Logger()
+    logger = cghla.Logger()
 
     allele_scores = {}
     for allele in alleles.allele_accn:
@@ -15,7 +15,7 @@ def score_sam(sam, hla, min_as = 0):
 
     sys.stderr.write('Reading SAM file\n')
     read_count = 0
-    with cgmhc.open_file(sam, 'rt') as f:
+    with cghla.open_file(sam, 'rt') as f:
         last_qname = None
         for line in f:
             if not line.strip() or line[0] == '@':
@@ -25,7 +25,7 @@ def score_sam(sam, hla, min_as = 0):
             cols = line.strip('\n').split('\t')
             qname = cols[0]
             allele = cols[2]
-            flags = cgmhc.samfile.parse_flags(int(cols[1]))
+            flags = cghla.samfile.parse_flags(int(cols[1]))
 
             if last_qname and last_qname != qname:
                 best_R1 = 0
@@ -195,14 +195,14 @@ def score_sam(sam, hla, min_as = 0):
 
 
 def predict(scores, hla, motifs, thres=0.95):
-    alleles = cgmhc.HLAalleles(hla)
+    alleles = cghla.HLAalleles(hla)
 
     # for an allele, what is the motif
     motifs_allele = {}
     # for a motif, what are the alleles (first allele is the canonical)
     rev_motifs = {}
 
-    with cgmhc.open_file(motifs, 'rt') as f:
+    with cghla.open_file(motifs, 'rt') as f:
         for line in f:
             cols = line.strip('\n').split(',')
             if cols[0] == 'allele':
@@ -219,7 +219,7 @@ def predict(scores, hla, motifs, thres=0.95):
     best_scores = {} # keyed by gene
     best_gene_scores = {} # keyed by gene
 
-    with cgmhc.open_file(scores, 'rt') as f:
+    with cghla.open_file(scores, 'rt') as f:
         for line in f:
             cols = line.strip('\n').split('\t')
 
@@ -241,8 +241,8 @@ def predict(scores, hla, motifs, thres=0.95):
             if total < best_gene_scores[gene] * thres:
                 continue
 
-            allele1_4digit = cgmhc.HLAalleles.to_4digit(alleles.allele_accn[allele1])
-            allele2_4digit = cgmhc.HLAalleles.to_4digit(alleles.allele_accn[allele2])
+            allele1_4digit = cghla.HLAalleles.to_4digit(alleles.allele_accn[allele1])
+            allele2_4digit = cghla.HLAalleles.to_4digit(alleles.allele_accn[allele2])
 
             if not allele1_4digit in motifs_allele or not allele2_4digit in motifs_allele:
                 # we will only return potential alleles where we have binding motifs
@@ -264,8 +264,8 @@ def predict(scores, hla, motifs, thres=0.95):
         secondary = {}
 
         for total, both, one, two, allele1, allele2 in best_scores[gene]:
-            allele1_4digit = cgmhc.HLAalleles.to_4digit(alleles.allele_accn[allele1])
-            allele2_4digit = cgmhc.HLAalleles.to_4digit(alleles.allele_accn[allele2])
+            allele1_4digit = cghla.HLAalleles.to_4digit(alleles.allele_accn[allele1])
+            allele2_4digit = cghla.HLAalleles.to_4digit(alleles.allele_accn[allele2])
 
             allele1_motif = motifs_allele[allele1_4digit]
             allele2_motif = motifs_allele[allele2_4digit]
