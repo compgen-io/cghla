@@ -268,7 +268,7 @@ Arguments:
     cgmhc.flanking.hla_to_bed(hla, sam)
 
 
-def extract_reads(bam, bed, out, unmapped=None):
+def extract_reads(bam, bed, out, bam2=None, unmapped=None):
     '''
 extract_reads - Extract reads from an aligned BAM file (and optionally a failed/unmapped BAM file)
 
@@ -279,11 +279,12 @@ Requires: samtools, ngsutilsj
 Arguments:
 --bam aligned BAM file
 --bed HLA BED file
+--bam2 failed/unmapped BAM file to find paired reads (optional, see: ngsutilsj bam-extract --bam2)
 --unmapped failed/unmapped BAM file (optional)
 --out Base name for output FASTQ files (will write {out}_R1.fastq.gz, {out}_R2.fastq.gz)
 '''
 
-    cgmhc.extract.extract_reads(bam, bed, out, unmapped)
+    cgmhc.extract.extract_reads(bam, bed, out, bam2, unmapped)
 
 
 def score_pairs(sam, hla, min_as=0):
@@ -393,14 +394,14 @@ Optional arguments:
     valid = None
     if alleles:
         valid = alleles.split(',')
-
+    
     if f:
         valid = []
         with open(f, 'rt') as f:
             for line in f:
                 if org:
                     valid.append('%s-%s' % (org, line.strip()))
-    else:
+                else:
                     valid.append(line.strip())
                 
 

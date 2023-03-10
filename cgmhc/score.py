@@ -1,5 +1,6 @@
 import sys
 import cgmhc
+import cgmhc.samfile
 
 
 def score_sam(sam, hla, min_as = 0):
@@ -8,30 +9,59 @@ def score_sam(sam, hla, min_as = 0):
     read_scores = {}
     logger = cgmhc.Logger()
 
+    allele_scores = {}
+    for allele in alleles.allele_accn:
+        allele_scores[allele] = set()
+
     sys.stderr.write('Reading SAM file\n')
+    read_count = 0
     with cgmhc.open_file(sam, 'rt') as f:
+        last_qname = None
         for line in f:
             if not line.strip() or line[0] == '@':
                 continue
-
+            
+            read_count += 1
             cols = line.strip('\n').split('\t')
             qname = cols[0]
-            flag = int(cols[1])
             allele = cols[2]
+            flags = cgmhc.samfile.parse_flags(int(cols[1]))
 
-            unmapped = (flag & 0x4 == 0x4)
-            rev = (flag & 0x10 == 0x10)
-            nextrev = (flag & 0x20 == 0x20)
-            first = (flag & 0x40 == 0x40)
+            if last_qname and last_qname != qname:
+                best_R1 = 0
+                best_R2 = 0
+                for allele in read_scores:
+                    if 'R1' in read_scores[allele]:
+                        if read_scores[allele]['R1'][0] > best_R1:
+                            best_R1 = read_scores[allele]['R1'][0]
+                    if 'R2' in read_scores[allele]:
+                        if read_scores[allele]['R2'][0] > best_R2:
+                            best_R2 = read_scores[allele]['R2'][0]
 
-            if unmapped:
+                for allele in read_scores:
+                    if 'R1' not in read_scores[allele] or 'R2' not in read_scores[allele]:
+                        # R1 and R2 must both align
+                        continue
+
+                    if read_scores[allele]['R1'][1] == read_scores[allele]['R2'][1]:
+                        # must be in reverse orientation
+                        continue
+
+                    if read_scores[allele]['R1'][0] == best_R1 and read_scores[allele]['R2'][0] == best_R2:
+                        # both sides must be the best match for R1/R2
+                        allele_scores[allele].add(last_qname)
+
+                read_scores = {}
+
+
+            if flags.unmapped or flags.next_unmapped:
                 continue
 
             if not allele in alleles.allele_accn:
                 sys.stderr.write("Unknown allele: %s\n" % allele)
                 sys.exit(1)
 
-            logger.write(qname)
+            logger.write('[%s] %s' % (read_count, qname))
 
             as_i = -1
 
@@ -43,50 +73,70 @@ def score_sam(sam, hla, min_as = 0):
                 # set a hard threshold
                 continue
 
-            if not qname in read_scores:
-                read_scores[qname] = {}
-
-            if not allele in read_scores[qname]:
-                read_scores[qname][allele] = {}
+            if not allele in read_scores:
+                read_scores[allele] = {}
             
-            if first:
-                read_scores[qname][allele]['R1'] = (as_i, '-' if rev else '+')
+            if flags.first:
+                read_scores[allele]['R1'] = (as_i, '-' if flags.revcomp else '+')
             else:
-                read_scores[qname][allele]['R2'] = (as_i, '-' if rev else '+')
+                read_scores[allele]['R2'] = (as_i, '-' if flags.revcomp else '+')
 
-    logger.write('Done\n')
+            last_qname = qname
 
-    sys.stderr.write('Finding best scores for reads\n')
+        if last_qname:
+            best_R1 = 0
+            best_R2 = 0
+            for allele in read_scores:
+                if 'R1' in read_scores[allele]:
+                    if read_scores[allele]['R1'][0] > best_R1:
+                        best_R1 = read_scores[allele]['R1'][0]
+                if 'R2' in read_scores[allele]:
+                    if read_scores[allele]['R2'][0] > best_R2:
+                        best_R2 = read_scores[allele]['R2'][0]
 
-    allele_scores = {}
-    for allele in alleles.allele_accn:
-        allele_scores[allele] = set()
+            for allele in read_scores:
+                if 'R1' not in read_scores[allele] or 'R2' not in read_scores[allele]:
+                    # R1 and R2 must both align
+                    continue
 
-    # find best R1/R2 scores
-    for qname in read_scores:
-        logger.write('%s, matches: %s' % (qname, len(read_scores[qname])))
-        best_R1 = 0
-        best_R2 = 0
-        for allele in read_scores[qname]:
-            if 'R1' in read_scores[qname][allele]:
-                if read_scores[qname][allele]['R1'][0] > best_R1:
-                    best_R1 = read_scores[qname][allele]['R1'][0]
-            if 'R2' in read_scores[qname][allele]:
-                if read_scores[qname][allele]['R2'][0] > best_R2:
-                    best_R2 = read_scores[qname][allele]['R2'][0]
+                if read_scores[allele]['R1'][1] == read_scores[allele]['R2'][1]:
+                    # must be in reverse orientation
+                    continue
 
-        for allele in read_scores[qname]:
-            if 'R1' not in read_scores[qname][allele] or 'R2' not in read_scores[qname][allele]:
-                # R1 and R2 must both align
-                continue
+                if read_scores[allele]['R1'][0] == best_R1 and read_scores[allele]['R2'][0] == best_R2:
+                    # both sides must be the best match for R1/R2
+                    allele_scores[allele].add(last_qname)
 
-            if read_scores[qname][allele]['R1'][1] == read_scores[qname][allele]['R2'][1]:
-                # must be in reverse orientation
-                continue
+    logger.write('Done. %s total reads\n' % read_count)
 
-            if read_scores[qname][allele]['R1'][0] == best_R1 and read_scores[qname][allele]['R2'][0] == best_R2:
-                # both sides must be the best match for R1/R2
-                allele_scores[allele].add(qname)
+    # sys.stderr.write('Finding best scores for reads\n')
+
+
+    # # find best R1/R2 scores
+    # for qname in read_scores:
+    #     logger.write('%s, matches: %s' % (qname, len(read_scores[qname])))
+    #     best_R1 = 0
+    #     best_R2 = 0
+    #     for allele in read_scores[qname]:
+    #         if 'R1' in read_scores[qname][allele]:
+    #             if read_scores[qname][allele]['R1'][0] > best_R1:
+    #                 best_R1 = read_scores[qname][allele]['R1'][0]
+    #         if 'R2' in read_scores[qname][allele]:
+    #             if read_scores[qname][allele]['R2'][0] > best_R2:
+    #                 best_R2 = read_scores[qname][allele]['R2'][0]
+
+    #     for allele in read_scores[qname]:
+    #         if 'R1' not in read_scores[qname][allele] or 'R2' not in read_scores[qname][allele]:
+    #             # R1 and R2 must both align
+    #             continue
+
+    #         if read_scores[qname][allele]['R1'][1] == read_scores[qname][allele]['R2'][1]:
+    #             # must be in reverse orientation
+    #             continue
+
+    #         if read_scores[qname][allele]['R1'][0] == best_R1 and read_scores[qname][allele]['R2'][0] == best_R2:
+    #             # both sides must be the best match for R1/R2
+    #             allele_scores[allele].add(qname)
 
     # for gene in alleles.genes:
     #     for allele in alleles.genes[gene]:
@@ -104,11 +154,11 @@ def score_sam(sam, hla, min_as = 0):
     #                 # both sides must be the best match for R1/R2
     #                 allele_scores[allele].add(qname)
 
-    logger.write("Done\n")
+    # logger.write("Done\n")
     sys.stdout.write('gene\tallele1\tallele2\tcount1\tcount2\tboth\ttotal\n')
 
     for gene in alleles.genes:
-        sys.stderr.write("Calculating pairs for HLA-%s\n" % gene)
+        sys.stderr.write("Calculating pairs for gene: %s\n" % gene)
         # this is done to give a sequential order to the alleles (all A*01:01 are next to each other)
         allele_list = alleles.sorted_alleles(gene=gene)
 
