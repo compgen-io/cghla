@@ -1,10 +1,10 @@
 #!/usr/bin/env python3 
-import cgmhc
+import cghla
 import sys
 
 
 def usage():
-    sys.stderr.write("""Usage: cgmhc cmd {args}
+    sys.stderr.write("""Usage: cghla cmd {args}
 
 Valid commands (in order):
     hla_align_ref         Align HLA reference alleles FASTA to a genome reference (bwa)
@@ -21,7 +21,7 @@ Valid commands (in order):
 
 
 def help(func, arg_kv=None):
-    sys.stderr.write('Usage: cgmhc %s {args}\n' % func.__name__) 
+    sys.stderr.write('Usage: cghla %s {args}\n' % func.__name__) 
     sys.stderr.write('%s\n' % func.__doc__)
     if arg_kv:
         sys.stderr.write('\n%s\n' % arg_kv)
@@ -66,52 +66,52 @@ def main(argv):
 
     if cmd == 'hla_align_ref':
         if 'ref' not in arg_kv or 'hla' not in arg_kv:
-            help(cgmhc.hla_align_ref)
-        cgmhc.hla_align_ref(**arg_kv)
+            help(cghla.hla_align_ref)
+        cghla.hla_align_ref(**arg_kv)
 
     elif cmd == 'hla_flanking_fasta':
         if 'ref' not in arg_kv or 'hla' not in arg_kv or 'sam' not in arg_kv:
-            help(cgmhc.hla_flanking_fasta)
-        cgmhc.hla_flanking_fasta(**arg_kv)
+            help(cghla.hla_flanking_fasta)
+        cghla.hla_flanking_fasta(**arg_kv)
 
     elif cmd == 'hla_to_bed':
         if 'hla' not in arg_kv or 'sam' not in arg_kv:
-            help(cgmhc.hla_to_bed)
-        cgmhc.hla_to_bed(**arg_kv)
+            help(cghla.hla_to_bed)
+        cghla.hla_to_bed(**arg_kv)
 
     elif cmd == 'mask_ref':
         if 'bed' not in arg_kv or 'ref' not in arg_kv:
-            help(cgmhc.mask_ref)
-        cgmhc.mask_ref(**arg_kv)
+            help(cghla.mask_ref)
+        cghla.mask_ref(**arg_kv)
 
     elif cmd == 'align_to_hla':
         if not 'fq1' in arg_kv or 'ref' not in arg_kv:
-            help(cgmhc.align_to_hla)
-        cgmhc.align_to_hla(**arg_kv)
+            help(cghla.align_to_hla)
+        cghla.align_to_hla(**arg_kv)
 
     elif cmd == 'extract_reads':
         if not 'bam' in arg_kv or 'bed' not in arg_kv or 'out' not in arg_kv:
-            help(cgmhc.extract_reads)
-        cgmhc.extract_reads(**arg_kv)
+            help(cghla.extract_reads)
+        cghla.extract_reads(**arg_kv)
 
     elif cmd == 'score_pairs':
         if not 'sam' in arg_kv or 'hla' not in arg_kv:
-            help(cgmhc.score_pairs)
-        cgmhc.score_pairs(**arg_kv)
+            help(cghla.score_pairs)
+        cghla.score_pairs(**arg_kv)
 
     elif cmd == 'predict':
         if not 'scores' in arg_kv or 'hla' not in arg_kv or 'motifs' not in arg_kv:
-            help(cgmhc.predict)
-        cgmhc.predict(**arg_kv)
+            help(cghla.predict)
+        cghla.predict(**arg_kv)
 
     elif cmd == 'similarity':
         if 'motifs' not in arg_kv:
-            help(cgmhc.similarity, arg_kv)
+            help(cghla.similarity, arg_kv)
 
         if 'allele' in arg_kv and type(arg_kv) != 'list':
-            help(cgmhc.similarity, arg_kv)
+            help(cghla.similarity, arg_kv)
 
-        cgmhc.similarity(**arg_kv)
+        cghla.similarity(**arg_kv)
 
     else:
         sys.stderr.write("Unknown command: %s\n" % (argv))

@@ -7,11 +7,11 @@ import contextlib
 import typing
 from collections import namedtuple
 
-import cgmhc.flanking
-import cgmhc.extract
-import cgmhc.score
-import cgmhc.samfile
-import cgmhc.motif_similarity
+import cghla.flanking
+import cghla.extract
+import cghla.score
+import cghla.samfile
+import cghla.motif_similarity
 
 
 @contextlib.contextmanager
@@ -250,7 +250,7 @@ Arguments:
 --flanking (default: 1000)
 '''
 
-    cgmhc.flanking.hla_flanking_fasta(hla, sam, ref, flanking)
+    cghla.flanking.hla_flanking_fasta(hla, sam, ref, flanking)
 
 
 def hla_to_bed(hla, sam):
@@ -265,7 +265,7 @@ Arguments:
 --sam hla.genome.sam (gzip optional)
 '''
 
-    cgmhc.flanking.hla_to_bed(hla, sam)
+    cghla.flanking.hla_to_bed(hla, sam)
 
 
 def extract_reads(bam, bed, out, bam2=None, unmapped=None):
@@ -284,7 +284,7 @@ Arguments:
 --out Base name for output FASTQ files (will write {out}_R1.fastq.gz, {out}_R2.fastq.gz)
 '''
 
-    cgmhc.extract.extract_reads(bam, bed, out, bam2, unmapped)
+    cghla.extract.extract_reads(bam, bed, out, bam2, unmapped)
 
 
 def score_pairs(sam, hla, min_as=0):
@@ -299,7 +299,7 @@ Arguments:
 --min_as minimum alignment score (default 0)
 '''
 
-    cgmhc.score.score_sam(sam, hla, min_as)
+    cghla.score.score_sam(sam, hla, min_as)
 
 
 
@@ -316,7 +316,7 @@ Arguments:
 --thres val               report secondary genotypes that fall within this threshold of the best score (0-1.0, default 0.95)
 '''
 
-    cgmhc.score.predict(scores, hla, motifs, thres)
+    cghla.score.predict(scores, hla, motifs, thres)
 
 
 def align_to_hla(ref, fq1, fq2=None, threads=1):
@@ -358,7 +358,7 @@ Arguments:
             continue
 
         cols = line.strip('\n').split('\t')
-        flags = cgmhc.samfile.parse_flags(int(cols[1]))
+        flags = cghla.samfile.parse_flags(int(cols[1]))
 
         if flags.unmapped:
             # remove any unmapped reads (there may be a lot)
@@ -405,4 +405,4 @@ Optional arguments:
                     valid.append(line.strip())
                 
 
-    cgmhc.motif_similarity.main(motifs, length, cutoff_fraction, valid)
+    cghla.motif_similarity.main(motifs, length, cutoff_fraction, valid)

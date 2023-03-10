@@ -3,8 +3,8 @@ import gzip
 import subprocess
 import tempfile
 
-import cgmhc
-import cgmhc.samfile
+import cghla
+import cghla.samfile
 
 
 class ReadWriter(object):
@@ -179,7 +179,7 @@ def extract_reads(bam, bed, out, bam2=None, unmapped=None):
             continue
         cols = line.strip('\n').split('\t')
         qname = cols[0]
-        flags = cgmhc.samfile.parse_flags(int(cols[1]))
+        flags = cghla.samfile.parse_flags(int(cols[1]))
         seq = cols[9]
         qual = cols[10]
 
@@ -189,12 +189,12 @@ def extract_reads(bam, bed, out, bam2=None, unmapped=None):
 
         if flags.first:
             if flags.revcomp:
-                writer.add_read1(qname, cgmhc.revcomp(seq), qual[::-1])
+                writer.add_read1(qname, cghla.revcomp(seq), qual[::-1])
             else:
                 writer.add_read1(qname, seq, qual)
         else:
             if flags.revcomp:
-                writer.add_read2(qname, cgmhc.revcomp(seq), qual[::-1])
+                writer.add_read2(qname, cghla.revcomp(seq), qual[::-1])
             else:
                 writer.add_read2(qname, seq, qual)
 
@@ -234,7 +234,7 @@ def extract_reads(bam, bed, out, bam2=None, unmapped=None):
 
             cols = line.strip('\n').split('\t')
             qname = cols[0]
-            flags = cgmhc.samfile.parse_flags(int(cols[1]))
+            flags = cghla.samfile.parse_flags(int(cols[1]))
             chrom = cols[2]
             pos = int(cols[3])
             next_chrom = cols[6]
@@ -277,12 +277,12 @@ def extract_reads(bam, bed, out, bam2=None, unmapped=None):
 
             if flags.first:
                 if flags.revcomp:
-                    writer.add_read1(qname, cgmhc.revcomp(seq), qual[::-1])
+                    writer.add_read1(qname, cghla.revcomp(seq), qual[::-1])
                 else:
                     writer.add_read1(qname, seq, qual)
             else:
                 if flags.revcomp:
-                    writer.add_read2(qname, cgmhc.revcomp(seq), qual[::-1])
+                    writer.add_read2(qname, cghla.revcomp(seq), qual[::-1])
                 else:
                     writer.add_read2(qname, seq, qual)
 
