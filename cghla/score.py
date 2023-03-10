@@ -234,6 +234,9 @@ def predict(scores, hla, motifs, thres=0.95):
             both = int(cols[5])
             total = one + two + both
 
+            if total == 0:
+                continue
+
             if not gene in best_scores:
                 best_scores[gene] = []
                 best_gene_scores[gene] = 0

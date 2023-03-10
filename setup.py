@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='cghla',
-      version='0.2.2',
+      version='0.2.3',
       description='Tools for finding HLA alleles for WGS/RNAseq samples',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -13,7 +13,7 @@ setup(name='cghla',
       url='http://github.com/compgen-io/cghla/',
       packages=['cghla'],
       scripts=['bin/cghla'],
-      python_requires='>=3.8',
+      python_requires='>=3.9',
 
      )
 
