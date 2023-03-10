@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='cghla',
-      version='0.2.3',
+      version='0.2.3.1',
       description='Tools for finding HLA alleles for WGS/RNAseq samples',
       long_description=long_description,
       long_description_content_type="text/markdown",
