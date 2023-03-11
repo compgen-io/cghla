@@ -194,7 +194,31 @@ def score_sam(sam, hla, min_as = 0):
 
 
 
-def predict(scores, hla, motifs, thres=0.95):
+def canonical(motifs, alleles):
+    # for an allele, what is the motif
+    motifs_allele = {}
+    # for a motif, what are the alleles (first allele is the canonical)
+    rev_motifs = {}
+
+    with cghla.open_file(motifs, 'rt') as f:
+        for line in f:
+            cols = line.strip('\n').split(',')
+            if cols[0] == 'allele':
+                continue
+
+            allele = cols[0][4:] # remove "HLA-"
+            motif = cols[1]
+
+            motifs_allele[allele] = motif
+            if not motif in rev_motifs:
+                rev_motifs[motif] = []
+            rev_motifs[motif].append(allele)
+
+    for a in alleles:
+        sys.stdout.write("Canonical allele for %s:\t%s\t(%s)\n" % (a, rev_motifs[motifs_allele[a]][0], motifs_allele[a]))
+
+
+def predict(scores, hla, motifs, thres=0.95, min_allele_count=0):
     alleles = cghla.HLAalleles(hla)
 
     # for an allele, what is the motif
@@ -250,6 +274,10 @@ def predict(scores, hla, motifs, thres=0.95):
             if not allele1_4digit in motifs_allele or not allele2_4digit in motifs_allele:
                 # we will only return potential alleles where we have binding motifs
                 continue
+
+            if one < min_allele_count or two < min_allele_count:
+                continue
+
 
             best_scores[gene].append((total, both, one, two, allele1, allele2))
             best_scores[gene] = sorted(best_scores[gene], reverse=True)

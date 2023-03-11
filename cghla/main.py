@@ -16,6 +16,7 @@ Valid commands (in order):
     score_pairs           Generate scores for HLA allele pairs
     predict               Find the most likely allele pairs
     similarity            Calculate the cosine similarity between motifs
+    canonical             Report the canonical allele (common binding motif)
 
 """)
 
@@ -103,6 +104,11 @@ def main(argv):
         if not 'scores' in arg_kv or 'hla' not in arg_kv or 'motifs' not in arg_kv:
             help(cghla.predict)
         cghla.predict(**arg_kv)
+
+    elif cmd == 'canonical':
+        if not 'motifs' in arg_kv or len(argv2) < 1:
+            help(cghla.canonical)
+        cghla.canonical(argv=argv2, **arg_kv)
 
     elif cmd == 'similarity':
         if 'motifs' not in arg_kv:

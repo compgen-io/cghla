@@ -303,7 +303,7 @@ Arguments:
 
 
 
-def predict(scores, hla, motifs, thres=0.95):
+def predict(scores, hla, motifs, thres=0.95, mincount=0):
     '''
 predict - Baseds on the pair-wise allele scores, determine which pair of alleles are the most likely genotype. 
 
@@ -314,9 +314,26 @@ Arguments:
 --hla file.fasta          HLA FASTA file
 --motifs file.csv         MHCFlurry common motifs file (mhcflurry.allele_sequences.csv)
 --thres val               report secondary genotypes that fall within this threshold of the best score (0-1.0, default 0.95)
+--mincount                minimum number of supporting reads required for a given allele (default: 0)
 '''
 
-    cghla.score.predict(scores, hla, motifs, thres)
+    cghla.score.predict(scores, hla, motifs, thres, mincount)
+
+
+def canonical(argv, motifs):
+    '''
+canonical - For the given alleles, report the canonical allele for that binding motif (for alleles with the same binding motif)
+
+Arguments:
+--motifs file.csv         MHCFlurry common motifs file (mhcflurry.allele_sequences.csv)
+allele1
+allele2...
+
+Alleles to show should be given as extra arguments (one or more required)
+
+'''
+
+    cghla.score.canonical(motifs, argv)
 
 
 def align_to_hla(ref, fq1, fq2=None, threads=1):
